@@ -28,8 +28,19 @@ function App() {
       try {
         const res = await fetch(API_URL);
         const data = await res.json();
-        setComplaints(data);
-      } catch (err) { console.error("Fetch error:", err); }
+        
+        // Defensive check: only set complaints if the data is an actual array
+        if (Array.isArray(data)) {
+          setComplaints(data);
+        } else {
+          console.error("Backend error intercepted. Expected array, got:", data);
+          setComplaints([]); 
+        }
+
+      } catch (err) { 
+        console.error("Fetch error:", err); 
+        setComplaints([]); 
+      }
     };
     fetchReports();
   }, []);
@@ -59,7 +70,7 @@ function App() {
       ...newReport, 
       longitude: userLoc[1], 
       latitude: userLoc[0],
-      userId: user?.id // Optional chaining fixes the error
+      userId: user?.id 
     };
 
     try {
@@ -74,7 +85,7 @@ function App() {
 
       if (res.ok) {
         const saved = await res.json();
-        setComplaints([saved, ...complaints]);
+        setComplaints([saved, ...(Array.isArray(complaints) ? complaints : [])]);
         setCurrentPage('home');
       }
     } catch (err) { console.error("Submission failed:", err); }
@@ -89,18 +100,18 @@ function App() {
           <Navbar 
             setPage={setCurrentPage} 
             currentPage={currentPage} 
-            userRole={user?.role} // Optional chaining fixes the error
+            userRole={user?.role} 
           />
           <main className="pb-24">
-            {currentPage === 'home' && <HomeScreen complaints={complaints} lang={currentLanguage} />}
+            {currentPage === 'home' && <HomeScreen complaints={Array.isArray(complaints) ? complaints : []} lang={currentLanguage} />}
             {currentPage === 'report' && <ReportForm onReport={addComplaint} lang={currentLanguage} />}
-            {currentPage === 'stats' && <Analytics complaints={complaints} lang={currentLanguage} />}
-            {currentPage === 'map' && <MapView complaints={complaints} userLoc={userLoc} lang={currentLanguage} />}
+            {currentPage === 'stats' && <Analytics complaints={Array.isArray(complaints) ? complaints : []} lang={currentLanguage} />}
+            {currentPage === 'map' && <MapView complaints={Array.isArray(complaints) ? complaints : []} userLoc={userLoc} lang={currentLanguage} />}
             {currentPage === 'profile' && (
               <Profile 
-                user={user} // Pass full user object
+                user={user} 
                 onLogout={handleLogout}
-                complaintCount={complaints.filter(c => c.userId === user?.id).length} 
+                complaintCount={Array.isArray(complaints) ? complaints.filter(c => c.userId === user?.id).length : 0} 
                 currentLang={currentLanguage} 
                 setLang={setCurrentLanguage} 
               />
@@ -111,9 +122,11 @@ function App() {
     </div>
   );
 }
+
 interface NavbarProps {
   setPage: (p: string) => void;
   currentPage: string;
-  userRole?: string; // Add this line to accept the role from App.tsx
+  userRole?: string; 
 }
+
 export default App;

@@ -5,6 +5,13 @@ import Report from '../models/Report.js';
 
 const router = express.Router();
 
+// Configure Cloudinary using your Vercel Environment Variables
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+  api_key: process.env.CLOUDINARY_API_KEY, 
+  api_secret: process.env.CLOUDINARY_API_SECRET 
+});
+
 // 1. Duplicate Detection Route (Geo-spatial query)
 router.post('/check-duplicate', async (req, res) => {
   const { longitude, latitude, category } = req.body;
@@ -99,4 +106,4 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-export default router; // Replaces module.exports
+export default router;
