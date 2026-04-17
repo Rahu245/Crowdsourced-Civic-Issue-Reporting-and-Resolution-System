@@ -76,7 +76,7 @@ Promote community participation
 👥 Capstone Project Team:
 Y R Rahul
 Darshan Kumar C
-Thaneesha P
+P Thaneesha
 
 📜 License:
 
